@@ -99,7 +99,7 @@ class App {
         
         Loop 9 {
             k := A_Index
-            Hotkey("!" k, (*) => this.ExecuteByIndex(k))
+            Hotkey("!" k, ((idx, *) => this.ExecuteByIndex(idx)).Bind(k))
         }
         HotIf
     }
