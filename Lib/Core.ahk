@@ -177,7 +177,8 @@ class App {
         this.GuiObj.OnEvent("Escape", (*) => this.Hide())
         this.GuiObj.OnEvent("Close", (*) => this.Hide())
         OnMessage(0x0006, (wParam, lParam, msg, hwnd) => this.CheckActive(wParam, lParam, msg, hwnd))
-        this.HListView.OnEvent("Click", (*) => this.ExecuteSelection())
+        ; 修复：ListView的Click事件会传递行号参数
+        this.HListView.OnEvent("Click", (ctrl, row, *) => this.OnListViewClick(row))
     }
 
     static Navigate(direction) {
@@ -279,13 +280,22 @@ class App {
         }
     }
 
+    static OnListViewClick(row) {
+        if (row > 0 && row <= this.CurrentFilteredList.Length) {
+            this.SelectedRow := row
+            this.ExecuteSelection()
+        }
+    }
+
     static ExecuteSelection() {
         if (this.SelectedRow = 0 || this.SelectedRow > this.CurrentFilteredList.Length) {
-             clickedRow := this.HListView.GetNext(0, "Focused")
-             if (clickedRow > 0)
-                 this.SelectedRow := clickedRow
-             else
-                 return
+            ; 如果没有有效的选中行，尝试获取焦点行（键盘导航时使用）
+            focusedRow := this.HListView.GetNext(0, "Focused")
+            if (focusedRow > 0 && focusedRow <= this.CurrentFilteredList.Length) {
+                this.SelectedRow := focusedRow
+            } else {
+                return
+            }
         }
         targetCmd := this.CurrentFilteredList[this.SelectedRow]
         this.Hide()

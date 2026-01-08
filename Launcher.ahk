@@ -42,9 +42,14 @@ class Bootstrapper {
             Loop Files, txtDir "\*.txt", "R" 
             {
                 fileName := A_LoopFileName
-                nameNoExt := SubStr(fileName, 1, InStr(fileName, ".") - 1)
+                ; 修复：查找最后一个点，处理文件名中有多个点的情况（如"新闻(新媒体).txt"）
+                lastDotPos := InStr(fileName, ".", , -1)
+                if (lastDotPos > 0)
+                    nameNoExt := SubStr(fileName, 1, lastDotPos - 1)
+                else
+                    nameNoExt := fileName  ; 没有扩展名的情况
                 
-                parts := StrSplit(nameNoExt, "__", , 2) 
+                parts := StrSplit(nameNoExt, "__", , 2)
                 trigger := parts[1]
                 desc := (parts.Length > 1) ? parts[2] : ""
 
